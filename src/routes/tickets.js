@@ -52,12 +52,12 @@ ticketsRouter.get(
     const advisors = await db.all('SELECT * FROM advisors WHERE active = 1 ORDER BY id ASC');
     const board = [];
     for (const a of advisors) {
-      const { serving, waiting, avgServiceMinutes } = await advisorSummary(a.id);
+      const { serving, waiting, scheduled, avgServiceMinutes } = await advisorSummary(a.id);
       board.push({
         advisor_id: a.id,
         advisor_name: a.name,
         serving,
-        nextUp: waiting.slice(0, 3),
+        nextUp: [...waiting, ...scheduled].slice(0, 3),
         avgServiceMinutes,
       });
     }

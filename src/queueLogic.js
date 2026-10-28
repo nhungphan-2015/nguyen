@@ -60,6 +60,7 @@ export async function avgServiceMinutes(advisorId) {
 }
 
 export async function advisorSummary(advisorId) {
+  const date = todayStr();
   const serving = await db.get(
     `SELECT * FROM tickets WHERE advisor_id = ? AND status = 'serving'
      ORDER BY called_at DESC LIMIT 1`,
@@ -75,6 +76,11 @@ export async function advisorSummary(advisorId) {
      ORDER BY called_at ASC`,
     [advisorId]
   );
+  const scheduled = await db.all(
+    `SELECT * FROM tickets WHERE advisor_id = ? AND status = 'scheduled' AND appointment_time LIKE ? || '%'
+     ORDER BY appointment_time ASC`,
+    [advisorId, date]
+  );
 
   const avgMinutes = await avgServiceMinutes(advisorId);
   const waiting = waitingRows.map((t, idx) => ({
@@ -82,7 +88,7 @@ export async function advisorSummary(advisorId) {
     estimated_wait_minutes: Math.round(avgMinutes * (idx + (serving ? 1 : 0))),
   }));
 
-  return { serving: serving || null, waiting, hold, avgServiceMinutes: avgMinutes };
+  return { serving: serving || null, waiting, hold, scheduled, avgServiceMinutes: avgMinutes };
 }
 
 export { todayStr };
