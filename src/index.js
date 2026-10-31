@@ -10,6 +10,7 @@ import { advisorsRouter } from './routes/advisors.js';
 import { ticketsRouter } from './routes/tickets.js';
 import { customersRouter } from './routes/customers.js';
 import { reportsRouter } from './routes/reports.js';
+import { resetForNewDay, todayStr } from './queueLogic.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const clientDist = path.join(__dirname, 'public');
@@ -47,7 +48,19 @@ io.on('connection', (socket) => {
 const PORT = process.env.PORT || 4000;
 
 ready
-  .then(() => {
+  .then(async () => {
+    await resetForNewDay();
+    let lastResetDate = todayStr();
+    setInterval(async () => {
+      const today = todayStr();
+      if (today !== lastResetDate) {
+        lastResetDate = today;
+        await resetForNewDay();
+        app.locals.emitChanged();
+        console.log(`Đã tự động chốt báo cáo và reset hệ thống cho ngày mới: ${today}`);
+      }
+    }, 60 * 1000);
+
     httpServer.listen(PORT, () => {
       console.log(`Showroom queue server running on http://localhost:${PORT}`);
     });

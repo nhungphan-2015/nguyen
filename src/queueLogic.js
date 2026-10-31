@@ -91,4 +91,18 @@ export async function advisorSummary(advisorId) {
   return { serving: serving || null, waiting, hold, scheduled, avgServiceMinutes: avgMinutes };
 }
 
+export async function resetForNewDay() {
+  const today = todayStr();
+  await db.run(
+    `UPDATE tickets SET status = 'cancelled'
+     WHERE status IN ('waiting', 'serving', 'hold') AND ticket_date IS NOT NULL AND ticket_date < ?`,
+    [today]
+  );
+  await db.run(
+    `UPDATE tickets SET status = 'cancelled'
+     WHERE status = 'scheduled' AND substr(appointment_time, 1, 10) < ?`,
+    [today]
+  );
+}
+
 export { todayStr };

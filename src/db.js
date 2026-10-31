@@ -107,9 +107,9 @@ async function migrate() {
 export const ready = migrate();
 
 export function todayStr() {
-  const d = new Date();
+  const vnNow = new Date(Date.now() + 7 * 60 * 60 * 1000);
   const pad = (n) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  return `${vnNow.getUTCFullYear()}-${pad(vnNow.getUTCMonth() + 1)}-${pad(vnNow.getUTCDate())}`;
 }
 
 export function nowIso() {
