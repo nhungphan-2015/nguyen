@@ -33,6 +33,11 @@ app.use('/api/reports', reportsRouter);
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
+// Công tắc tính năng: đặt AGENT_INTAKE_URL để hiện tab "Phiếu tiếp nhận (agent)", bỏ đi để tắt.
+app.get('/api/features', (req, res) =>
+  res.json({ agentIntakeUrl: process.env.AGENT_INTAKE_URL || null })
+);
+
 app.use(express.static(clientDist));
 app.get('/', (req, res) => res.sendFile(path.join(clientDist, 'index.html')));
 
