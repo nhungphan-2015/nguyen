@@ -49,7 +49,7 @@ ticketsRouter.get(
 ticketsRouter.get(
   '/board',
   asyncHandler(async (req, res) => {
-    const advisors = await db.all('SELECT * FROM advisors WHERE active = 1 ORDER BY id ASC');
+    const advisors = await db.all('SELECT * FROM advisors WHERE active = 1 ORDER BY sort_order ASC, id ASC');
     const board = [];
     for (const a of advisors) {
       const { serving, waiting, scheduled, avgServiceMinutes } = await advisorSummary(a.id);

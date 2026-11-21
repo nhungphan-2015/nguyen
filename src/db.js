@@ -102,6 +102,21 @@ async function migrate() {
       await pool.query('INSERT INTO advisors (name, active) VALUES ($1, 1)', [name]);
     }
   }
+
+  // Display order of advisor columns on the board (added later; first run seeds the showroom's order)
+  const col = await pool.query(
+    `SELECT 1 FROM information_schema.columns WHERE table_name = 'advisors' AND column_name = 'sort_order'`
+  );
+  if (col.rowCount === 0) {
+    await pool.query('ALTER TABLE advisors ADD COLUMN sort_order INTEGER');
+    await pool.query('UPDATE advisors SET sort_order = id + 100');
+    const preferred = ['NGỌC HOÀI', 'MINH THANH', 'VÂN BÌNH', 'THANH TUẤN', 'TẤN NHÂN', 'VĂN QUÂN'];
+    const { rows: all } = await pool.query('SELECT id, name FROM advisors');
+    for (const a of all) {
+      const i = preferred.indexOf(a.name.trim().toLocaleUpperCase('vi'));
+      if (i >= 0) await pool.query('UPDATE advisors SET sort_order = $1 WHERE id = $2', [i + 1, a.id]);
+    }
+  }
 }
 
 export const ready = migrate();

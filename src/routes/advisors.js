@@ -5,7 +5,7 @@ import { asyncHandler } from '../asyncHandler.js';
 export const advisorsRouter = Router();
 
 async function advisorsWithStatus() {
-  const advisors = await db.all('SELECT * FROM advisors ORDER BY id ASC');
+  const advisors = await db.all('SELECT * FROM advisors ORDER BY sort_order ASC, id ASC');
   const result = [];
   for (const a of advisors) {
     const serving = await db.get(
@@ -35,7 +35,11 @@ advisorsRouter.post(
   asyncHandler(async (req, res) => {
     const { name } = req.body;
     if (!name || !name.trim()) return res.status(400).json({ error: 'Tên cố vấn là bắt buộc' });
-    const info = await db.run('INSERT INTO advisors (name, active) VALUES (?, 1)', [name.trim()]);
+    // New advisors go to the end of the board
+    const info = await db.run(
+      'INSERT INTO advisors (name, active, sort_order) VALUES (?, 1, (SELECT COALESCE(MAX(sort_order), 0) + 1 FROM advisors))',
+      [name.trim()]
+    );
     req.app.locals.emitChanged();
     res.status(201).json(await db.get('SELECT * FROM advisors WHERE id = ?', [info.lastInsertRowid]));
   })
