@@ -10,3 +10,6 @@ services:
         sync: false
       - key: PORT
         value: 10000
+      # FPT.AI key for the Southern female call voice (lannhi); unset = Google voice
+      - key: FPT_TTS_KEY
+        sync: false
