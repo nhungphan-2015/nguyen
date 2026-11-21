@@ -11,6 +11,7 @@ import { ticketsRouter } from './routes/tickets.js';
 import { customersRouter } from './routes/customers.js';
 import { reportsRouter } from './routes/reports.js';
 import { resetForNewDay, todayStr } from './queueLogic.js';
+import { ttsHandler } from './tts.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const clientDist = path.join(__dirname, 'public');
@@ -32,6 +33,7 @@ app.use('/api/customers', customersRouter);
 app.use('/api/reports', reportsRouter);
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
+app.get('/api/tts', ttsHandler);
 
 // Công tắc tính năng: đặt AGENT_INTAKE_URL để hiện tab "Phiếu tiếp nhận (agent)", bỏ đi để tắt.
 app.get('/api/features', (req, res) =>
